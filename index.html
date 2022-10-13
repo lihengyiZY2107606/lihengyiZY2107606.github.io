@@ -150,6 +150,150 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hengyi Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="僧敲月下门">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">SLAM-EKF Fast-SLAM粒子滤波原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-10-13 16:24:14 / 修改时间：16:24:42" itemprop="dateCreated datePublished" datetime="2022-10-13T16:24:14+08:00">2022-10-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SLAM%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">SLAM学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hengyi Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="僧敲月下门">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">SLAM-EKF扩展卡尔曼滤波原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-10-13 16:21:08 / 修改时间：17:27:56" itemprop="dateCreated datePublished" datetime="2022-10-13T16:21:08+08:00">2022-10-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SLAM%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">SLAM学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p><b>卡尔曼滤波KF</b>：Kalman Filter，是贝叶斯滤波的具体化，系统满足线性化和高斯分布假设，运动方程和观测方程都是线性。</p>
+<img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/motion_equation_linear.jpg" class title="线性运动方程">
+<img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/observe_equation_linear.jpg" class title="线性观测方程">
+<p><b>扩展卡尔曼滤波EKF</b>：Extended-Kalman Filter，考虑到SLAM系统模型为非线性，故将非线性函数泰勒展开并取前两项，即近似为线性函数，从而满足KF条件，再使用kalman Filter。<br>    SLAM问题两大目标方程：<br>        <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg" class title="SLAM问题目标方程"><br>    线性化处理后方程：<br>        <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation_linear.jpg" class title="SLAM问题线性化目标方程"></p>
+<h1 id="SLAM实际应用中的数学模型"><a href="#SLAM实际应用中的数学模型" class="headerlink" title="SLAM实际应用中的数学模型"></a>SLAM实际应用中的数学模型</h1><p><b>机器人实际模型</b><br>    考虑二维机器人运动过程中时间的离散性：<br>    1. 运动方程<br>    <br>    2. 观测方程<br>    <br><b>SLAM过程参数矩阵（均值、方差）</b><br>    <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/gauss_matrix.jpg" class title="参数矩阵"><br><b>EKF滤波原理</b><br>    卡尔曼滤波前，landmarks位置由于噪声存在和累加，具有不确定性，观测呈椭圆范围。<br>    <br>    卡尔曼滤波后，通过重复观测优化系统状态量，本质是通过计算卡尔曼增益来衡量模型的估计值和观测模型的结果。<br>    </p>
+<h1 id="EKF实际应用流程"><a href="#EKF实际应用流程" class="headerlink" title="EKF实际应用流程"></a>EKF实际应用流程</h1><ol>
+<li>状态预测</li>
+<li>状态更新</li>
+<li>数据关联</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/13/SLAM%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -175,7 +319,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-10-13 10:02:07 / 修改时间：11:18:13" itemprop="dateCreated datePublished" datetime="2022-10-13T10:02:07+08:00">2022-10-13</time>
+              <time title="创建时间：2022-10-13 10:02:07 / 修改时间：16:38:22" itemprop="dateCreated datePublished" datetime="2022-10-13T10:02:07+08:00">2022-10-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -198,7 +342,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>SLAM：Simultaneous Localization and Mapping，指的是机器人在未知环境中同时进行自主定位和地图创建工作，其主要思想是：<br><b>1. 依靠已创建的地图信息进行自定位；</b><br><b>2. 根据定位结果对地图进行更新。</b></p>
+          <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>SLAM：Simultaneous Localization and Mapping，指的是机器人在未知环境中同时进行自主定位和地图创建工作，其主要思想是：<br><b>1. 依靠已创建的地图信息进行自定位；</b><br><b>2. 根据定位结果对地图进行更新。</b></p>
 <p>SLAM本质上是一个状态估计问题，当前，其求解方法可大致分为两大类：<br><b>1. 是基于滤波器的方法；</b><br><b>2. 是基于平滑的方法。</b></p>
 <h1 id="基本分类"><a href="#基本分类" class="headerlink" title="基本分类"></a>基本分类</h1><p><b>1. 激光SLAM</b><br>准确、快速、开发成熟，但相对笨重、成本较高。<br><b>2. 视觉SLAM</b><br>便宜、轻量、信息量大，但消耗较大算力、所有结果都是概率估计。<br>相机分类：</p>
 <ol>
@@ -527,13 +671,15 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
         <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">分类</span>
+        <span class="site-state-item-name">分类</span></a>
       </div>
   </nav>
 </div>

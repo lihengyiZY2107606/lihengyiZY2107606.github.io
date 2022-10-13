@@ -20,17 +20,25 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":24,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="paper">
-<meta property="og:url" content="http://example.com/2022/04/08/paper/index.html">
+  <meta name="description" content="基本概念卡尔曼滤波KF：Kalman Filter，是贝叶斯滤波的具体化，系统满足线性化和高斯分布假设，运动方程和观测方程都是线性。   扩展卡尔曼滤波EKF：Extended-Kalman Filter，考虑到SLAM系统模型为非线性，故将非线性函数泰勒展开并取前两项，即近似为线性函数，从而满足KF条件，再使用kalman Filter。    SLAM问题两大目标方程：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM-EKF扩展卡尔曼滤波原理">
+<meta property="og:url" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="僧敲月下门">
+<meta property="og:description" content="基本概念卡尔曼滤波KF：Kalman Filter，是贝叶斯滤波的具体化，系统满足线性化和高斯分布假设，运动方程和观测方程都是线性。   扩展卡尔曼滤波EKF：Extended-Kalman Filter，考虑到SLAM系统模型为非线性，故将非线性函数泰勒展开并取前两项，即近似为线性函数，从而满足KF条件，再使用kalman Filter。    SLAM问题两大目标方程：">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-04-08T03:13:01.000Z">
-<meta property="article:modified_time" content="2022-05-28T07:24:46.373Z">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/motion_equation_linear.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/observe_equation_linear.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation_linear.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/gauss_matrix.jpg">
+<meta property="article:published_time" content="2022-10-13T08:21:08.000Z">
+<meta property="article:modified_time" content="2022-10-13T09:27:56.718Z">
 <meta property="article:author" content="Hengyi Li">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/motion_equation_linear.jpg">
 
-<link rel="canonical" href="http://example.com/2022/04/08/paper/">
+<link rel="canonical" href="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -43,7 +51,7 @@
   };
 </script>
 
-  <title>paper | 僧敲月下门</title>
+  <title>SLAM-EKF扩展卡尔曼滤波原理 | 僧敲月下门</title>
   
 
 
@@ -153,7 +161,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/08/paper/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -166,7 +174,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          paper
+          SLAM-EKF扩展卡尔曼滤波原理
         </h1>
 
         <div class="post-meta">
@@ -175,23 +183,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2022-04-08 11:13:01" itemprop="dateCreated datePublished" datetime="2022-04-08T11:13:01+08:00">2022-04-08</time>
+              <time title="创建时间：2022-10-13 16:21:08 / 修改时间：17:27:56" itemprop="dateCreated datePublished" datetime="2022-10-13T16:21:08+08:00">2022-10-13</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-28 15:24:46" itemprop="dateModified" datetime="2022-05-28T15:24:46+08:00">2022-05-28</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%8A%9B%E6%89%A3Leetcode/" itemprop="url" rel="index"><span itemprop="name">力扣Leetcode</span></a>
+                  <a href="/categories/SLAM%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">SLAM学习</span></a>
                 </span>
             </span>
 
@@ -213,7 +215,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p><b>卡尔曼滤波KF</b>：Kalman Filter，是贝叶斯滤波的具体化，系统满足线性化和高斯分布假设，运动方程和观测方程都是线性。</p>
+<img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/motion_equation_linear.jpg" class title="线性运动方程">
+<img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/observe_equation_linear.jpg" class title="线性观测方程">
+<p><b>扩展卡尔曼滤波EKF</b>：Extended-Kalman Filter，考虑到SLAM系统模型为非线性，故将非线性函数泰勒展开并取前两项，即近似为线性函数，从而满足KF条件，再使用kalman Filter。<br>    SLAM问题两大目标方程：<br>        <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg" class title="SLAM问题目标方程"><br>    线性化处理后方程：<br>        <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation_linear.jpg" class title="SLAM问题线性化目标方程"></p>
+<h1 id="SLAM实际应用中的数学模型"><a href="#SLAM实际应用中的数学模型" class="headerlink" title="SLAM实际应用中的数学模型"></a>SLAM实际应用中的数学模型</h1><p><b>机器人实际模型</b><br>    考虑二维机器人运动过程中时间的离散性：<br>    1. 运动方程<br>    <br>    2. 观测方程<br>    <br><b>SLAM过程参数矩阵（均值、方差）</b><br>    <img src="/2022/10/13/SLAM-EKF%E6%89%A9%E5%B1%95%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/gauss_matrix.jpg" class title="参数矩阵"><br><b>EKF滤波原理</b><br>    卡尔曼滤波前，landmarks位置由于噪声存在和累加，具有不确定性，观测呈椭圆范围。<br>    <br>    卡尔曼滤波后，通过重复观测优化系统状态量，本质是通过计算卡尔曼增益来衡量模型的估计值和观测模型的结果。<br>    </p>
+<h1 id="EKF实际应用流程"><a href="#EKF实际应用流程" class="headerlink" title="EKF实际应用流程"></a>EKF实际应用流程</h1><ol>
+<li>状态预测</li>
+<li>状态更新</li>
+<li>数据关联</li>
+</ol>
+
     </div>
 
     
@@ -227,10 +239,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2022/04/11/hello-world/" rel="next" title="Hello World">
-      Hello World <i class="fa fa-chevron-right"></i>
+    <a href="/2022/10/13/SLAM%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="prev" title="SLAM基础知识">
+      <i class="fa fa-chevron-left"></i> SLAM基础知识
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/" rel="next" title="SLAM-EKF Fast-SLAM粒子滤波原理">
+      SLAM-EKF Fast-SLAM粒子滤波原理 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -290,6 +305,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SLAM%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E4%B8%AD%E7%9A%84%E6%95%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">SLAM实际应用中的数学模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EKF%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">EKF实际应用流程</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
