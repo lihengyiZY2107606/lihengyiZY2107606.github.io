@@ -20,15 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":24,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="基本概念Fast-SLAM：一种基于Rao-Blackwillised Particle Filter的SLAM后端算法，包括Fast-SLAM1.0和Fast-SLAM2.0两个版本。Fast-SLAM 1.0：该算法利用粒子滤波器跟踪移动机器人位姿参数,并且每一粒子单独维护一幅环境特征地图、每一个环境路标利用EKF算法来维护。Fast-SLAM 2.0：在1.0版本的基础上，较好地解决了粒子退">
+<meta property="og:type" content="article">
 <meta property="og:title" content="SLAM-EKF Fast-SLAM粒子滤波原理">
 <meta property="og:url" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="僧敲月下门">
+<meta property="og:description" content="基本概念Fast-SLAM：一种基于Rao-Blackwillised Particle Filter的SLAM后端算法，包括Fast-SLAM1.0和Fast-SLAM2.0两个版本。Fast-SLAM 1.0：该算法利用粒子滤波器跟踪移动机器人位姿参数,并且每一粒子单独维护一幅环境特征地图、每一个环境路标利用EKF算法来维护。Fast-SLAM 2.0：在1.0版本的基础上，较好地解决了粒子退">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/particle.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/weight.jpg">
+<meta property="og:image" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/threshold.jpg">
 <meta property="article:published_time" content="2022-10-13T08:24:14.000Z">
-<meta property="article:modified_time" content="2022-10-13T08:24:42.805Z">
+<meta property="article:modified_time" content="2022-10-14T07:34:45.871Z">
 <meta property="article:author" content="Hengyi Li">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg">
 
 <link rel="canonical" href="http://example.com/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/">
 
@@ -175,10 +182,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-10-13 16:24:14 / 修改时间：16:24:42" itemprop="dateCreated datePublished" datetime="2022-10-13T16:24:14+08:00">2022-10-13</time>
+              <time title="创建时间：2022-10-13 16:24:14" itemprop="dateCreated datePublished" datetime="2022-10-13T16:24:14+08:00">2022-10-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-14 15:34:45" itemprop="dateModified" datetime="2022-10-14T15:34:45+08:00">2022-10-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -207,7 +220,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p><b>Fast-SLAM</b>：一种基于Rao-Blackwillised Particle Filter的SLAM后端算法，包括Fast-SLAM1.0和Fast-SLAM2.0两个版本。<br><b>Fast-SLAM 1.0</b>：该算法利用粒子滤波器跟踪移动机器人位姿参数,并且每一粒子单独维护一幅环境特征地图、每一个环境路标利用EKF算法来维护。<br><b>Fast-SLAM 2.0</b>：在1.0版本的基础上，较好地解决了粒子退化的问题，使用较少的粒子就可以得到满意的SLAM结果。<br><b>受Fast-SLAM启发的算法</b>：栅格地图Fast-SLAM、立体视觉Fast-SLAM、UFast-SLAM、CFast-SLAM等。<br><b>与EKF算法的区别</b>：Fast-SLAM算法计算代价小、计算速度快、更适用于大尺度环境、数据关联鲁棒性更好。</p>
+<h1 id="Fast-SLAM基本框架"><a href="#Fast-SLAM基本框架" class="headerlink" title="Fast-SLAM基本框架"></a>Fast-SLAM基本框架</h1><p>若机器人路径已知，则各个地标点的位置估计是相互独立的，SLAM问题目标概率方程分解为：</p>
+<img src="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/SLAM_equation.jpg" class title="Fast-SLAM的目标方程">
+<p>前项为路径后验概率、后项为地表估计。FastSLAM由粒子滤波和多个单独的EKF构成，粒子滤波器估计移动机器人的路径、EKF根据式中参数完成对单个路标的估计。<br>FastSLAM中的粒子包含粒子的历史路径和对每个路标的估计，可以表示为：</p>
+<img src="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/particle.jpg" class title="粒子参数表达式">
+<p>FastSLAM分为预测，更新和重要性采样三个步骤。预测和更新步骤根据观测信息和控制信息形成临时粒子集，将临时粒子集对路径的估计称为建议分布。由于建议分布与目标分布不符，因此在重采样步骤对粒子赋予权重，权重大小为：</p>
+<img src="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/weight.jpg" class title="粒子权重表达式">
+<p>FastSLAM算法存在粒子退化的问题，即权重大的粒子数量少，粒子滤波器对路径的估计出现偏差。因此，FastSLAM算法需要对粒子进行<b>重新采样</b>。执行重采样步骤的判断方法为对有效粒子数设置阈值，当小于阈值N-neff时进行重采样。有效粒子数的计算方式为：</p>
+<img src="/2022/10/13/SLAM-EKF-Fast-SLAM%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%8E%9F%E7%90%86/threshold.jpg" class title="重采样阈值表达式">
+<p><b>重采样问题</b>：重采样步骤会导致粒子集中在权重较大的粒子附近，在降低粒子多样性的同时，若权重较大的粒子为局部最优解，则包含局部最优解信息的粒子数量过多，进而导致对下一时刻的粒子路径估计错误，导致粒子偏离正确轨迹。</p>
+<h1 id="Fast-SLAM-Rao-Blackwillised-PF-实际应用流程"><a href="#Fast-SLAM-Rao-Blackwillised-PF-实际应用流程" class="headerlink" title="Fast-SLAM(Rao-Blackwillised PF)实际应用流程"></a>Fast-SLAM(Rao-Blackwillised PF)实际应用流程</h1><ol>
+<li>机器人状态预测</li>
+<li>数据关联</li>
+<li>重要性采样（权值计算）</li>
+<li>地图更新</li>
+<li>重采样</li>
+</ol>
+
     </div>
 
     
@@ -284,6 +314,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fast-SLAM%E5%9F%BA%E6%9C%AC%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">Fast-SLAM基本框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fast-SLAM-Rao-Blackwillised-PF-%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">Fast-SLAM(Rao-Blackwillised PF)实际应用流程</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
